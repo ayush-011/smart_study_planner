@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Study Planner & Focus Tracker</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar card">
+        <div class="brand">
+          <div class="brand-logo"><i class="fas fa-graduation-cap"></i></div>
+          <div>
+            <h1>Smart Study Planner</h1>
+            <p>Focus. Plan. Achieve.</p>
+          </div>
+        </div>
+        <nav class="side-nav">
+          <button class="nav-item active" data-target="dashboardTop"><i class="fas fa-home"></i> Dashboard</button>
+          <button class="nav-item" data-target="tasksSection"><i class="fas fa-tasks"></i> Tasks</button>
+          <button class="nav-item" data-target="focusSection"><i class="fas fa-clock"></i> Focus Timer</button>
+          <button class="nav-item" data-target="analyticsSection"><i class="fas fa-chart-bar"></i> Analytics</button>
+          <button class="nav-item" data-target="streakSection"><i class="fas fa-fire"></i> Streaks</button>
+        </nav>
+      </aside>
+
+      <div class="main-content">
+        <header class="topbar" id="dashboardTop">
+          <div>
+            <h2 class="hero-title">Good Morning, Learner</h2>
+            <p class="hero-subtitle">Stay consistent, stay productive.</p>
+          </div>
+          <div class="top-actions">
+            <input id="taskSearchInput" type="search" placeholder="Search tasks..." />
+            <button id="themeToggleBtn" class="btn theme-toggle-btn" aria-label="Toggle theme">
+              <span id="themeToggleIcon">🌙</span>
+              <span id="themeToggleText">Dark</span>
+            </button>
+          </div>
+        </header>
+
+        <main class="dashboard-grid">
+          <section class="stats-row">
+            <article class="metric-card card">
+              <p>Total Study Time</p>
+              <h3 id="statStudyTime">0h 0m</h3>
+            </article>
+            <article class="metric-card card">
+              <p>Tasks Completed</p>
+              <h3 id="statTasksCompleted">0</h3>
+            </article>
+            <article class="metric-card card">
+              <p>Focus Sessions</p>
+              <h3 id="statFocusSessions">0</h3>
+            </article>
+            <article class="metric-card card">
+              <p>Current Streak</p>
+              <h3 id="statStreak">0 days</h3>
+            </article>
+          </section>
+
+          <section class="card panel quote-panel">
+            <div class="quote-header">
+              <h2>Daily Motivation</h2>
+              <button id="newQuoteBtn" class="btn btn-secondary btn-small">New Quote</button>
+            </div>
+            <blockquote id="quoteText">
+              Success is the sum of small efforts, repeated day in and day out.
+            </blockquote>
+          </section>
+
+          <section class="card panel analytics-panel" id="analyticsSection">
+            <div class="panel-header">
+              <h2>Weekly Overview</h2>
+              <span class="badge">Last 7 days</span>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="analyticsChart"></canvas>
+            </div>
+          </section>
+
+          <section class="card panel task-panel" id="tasksSection">
+            <div class="panel-header">
+              <h2>Today's Tasks</h2>
+              <span id="taskCountBadge" class="badge">0/0 done</span>
+            </div>
+
+            <form id="taskForm" class="task-form">
+              <input type="hidden" id="taskId" />
+              <div class="form-grid">
+                <div class="form-row">
+                  <label for="titleInput">Title</label>
+                  <input id="titleInput" type="text" maxlength="100" required />
+                </div>
+                <div class="form-row">
+                  <label for="subjectInput">Subject</label>
+                  <input id="subjectInput" type="text" maxlength="50" required />
+                </div>
+                <div class="form-row">
+                  <label for="durationInput">Minutes</label>
+                  <input id="durationInput" type="number" min="1" max="600" required />
+                </div>
+                <div class="form-row">
+                  <label for="taskPriorityInput">Priority</label>
+                  <select id="taskPriorityInput">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+              </div>
+              <div class="task-form-actions">
+                <button id="taskSubmitBtn" type="submit" class="btn btn-primary">Add Task</button>
+                <button id="taskCancelBtn" type="button" class="btn btn-secondary hidden">Cancel</button>
+              </div>
+            </form>
+
+            <div id="taskList" class="task-list"></div>
+          </section>
+
+          <section class="right-column">
+            <section class="card panel timer-panel" id="focusSection">
+              <div class="panel-header">
+                <h2>Focus Timer</h2>
+                <span id="timerModeBadge" class="badge">Focus</span>
+              </div>
+              <div class="timer-ring-wrap">
+                <svg class="timer-ring" viewBox="0 0 120 120" aria-hidden="true">
+                  <circle class="timer-ring-bg" cx="60" cy="60" r="52"></circle>
+                  <circle id="timerProgressCircle" class="timer-ring-progress" cx="60" cy="60" r="52"></circle>
+                </svg>
+                <p id="timerDisplay" class="timer-display">25:00</p>
+              </div>
+              <p id="timerHint" class="timer-hint">Focus mode active</p>
+              <div class="timer-actions">
+                <button id="startTimerBtn" class="btn btn-primary">Start</button>
+                <button id="pauseTimerBtn" class="btn btn-secondary">Pause</button>
+                <button id="resetTimerBtn" class="btn btn-danger">Reset</button>
+              </div>
+              <div class="timer-settings">
+                <p class="timer-settings-title">Pomodoro Settings (minutes)</p>
+                <div class="timer-settings-grid">
+                  <div class="form-row">
+                    <label for="focusDurationInput">Focus</label>
+                    <input id="focusDurationInput" type="number" min="1" max="180" />
+                  </div>
+                  <div class="form-row">
+                    <label for="breakDurationInput">Break</label>
+                    <input id="breakDurationInput" type="number" min="1" max="60" />
+                  </div>
+                  <button id="applyTimerSettingsBtn" class="btn btn-secondary" type="button">
+                    Apply
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <section class="card panel insights-panel">
+              <h2>Advanced Tracking</h2>
+              <div class="insight-grid">
+                <div>
+                  <p class="insight-label">Productivity Score</p>
+                  <p id="productivityScore" class="insight-value">0</p>
+                </div>
+                <div>
+                  <p class="insight-label">Completion Rate</p>
+                  <p id="completionRate" class="insight-value">0%</p>
+                </div>
+              </div>
+              <div class="goal-row">
+                <label for="dailyGoalInput">Daily Goal (minutes)</label>
+                <div class="goal-controls">
+                  <input id="dailyGoalInput" type="number" min="30" max="1000" step="10" />
+                  <button id="saveGoalBtn" class="btn btn-secondary">Save</button>
+                </div>
+                <p id="goalProgressText" class="muted-text">Goal Progress: 0%</p>
+                <div class="goal-bar">
+                  <span id="goalProgressFill"></span>
+                </div>
+              </div>
+            </section>
+
+            <section class="card panel streak-panel" id="streakSection">
+              <div class="panel-header">
+                <h2>Study Streak</h2>
+                <span id="streakDaysLabel" class="badge">0 days</span>
+              </div>
+              <div id="streakCalendar" class="streak-calendar"></div>
+            </section>
+          </section>
+
+          <section class="card panel quote-panel">
+            <blockquote id="quoteText">
+              Success is the sum of small efforts, repeated day in and day out.
+            </blockquote>
+          </section>
+
+          <section class="card panel history-panel">
+            <div class="panel-header">
+              <h2>Recent Focus Sessions</h2>
+              <span class="badge">Auto tracked</span>
+            </div>
+            <div id="sessionHistoryList" class="history-list"></div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
